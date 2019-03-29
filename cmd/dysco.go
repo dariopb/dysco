@@ -1,11 +1,12 @@
 package main
 
 import (
-	"dysco"
 	"fmt"
 	"os"
 	"os/signal"
 	"strconv"
+
+	dysco "github.com/dariopb/dysco"
 
 	tcmu "github.com/coreos/go-tcmu"
 	log "github.com/sirupsen/logrus"
