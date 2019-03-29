@@ -1,13 +1,15 @@
 package main
 
 import (
+	"context"
 	"dysco"
+	"dysco/netFileStream"
 	"fmt"
 	"os"
 	"os/signal"
 	"strconv"
 
-	tcmu "github.com/coreos/go-tcmu"
+	//	tcmu "github.com/coreos/go-tcmu"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -37,23 +39,30 @@ func main() {
 		os.Exit(0)
 	}
 
-	v, err := dysco.OpenPageBlob(name, container, sa, sak)
+	ctx := context.Background()
+
+	_, err := netFileStream.NewNetFileVolume(name, ctx)
 	if err != nil {
 		die("Failure opening page blob: ", err.Error())
 	}
+	/*
+		v, err := dysco.OpenPageBlob(name, container, sa, sak)
+		if err != nil {
+			die("Failure opening page blob: ", err.Error())
+		}
 
-	//--------
-	// TCMU hooks
-	handler := tcmu.BasicSCSIHandler(v)
-	handler.VolumeName = name
-	handler.DataSizes.VolumeSize = v.GetSize()
-	d, err := tcmu.OpenTCMUDevice("/dev/tcmufile", handler)
-	if err != nil {
-		die("couldn't tcmu: %v", err)
-	}
-	defer d.Close()
-	fmt.Printf("go-tcmu attached to %s/%s\n", "/dev/tcmufile", name)
-
+			//--------
+			// TCMU hooks
+			handler := tcmu.BasicSCSIHandler(v)
+			handler.VolumeName = name
+			handler.DataSizes.VolumeSize = v.GetSize()
+			d, err := tcmu.OpenTCMUDevice("/dev/tcmufile", handler)
+			if err != nil {
+				die("couldn't tcmu: %v", err)
+			}
+			defer d.Close()
+			fmt.Printf("go-tcmu attached to %s/%s\n", "/dev/tcmufile", name)
+	*/
 	mainClose := make(chan bool)
 	signalChan := make(chan os.Signal, 1)
 	signal.Notify(signalChan, os.Interrupt)
@@ -65,15 +74,6 @@ func main() {
 		}
 	}()
 	<-mainClose
-	/*
-		for i := 0; i < 100; i++ {
-			off := int64(i * 512)
-			p := make([]byte, 100*512)
-			_, err = v.WriteAt(p, off)
-
-			_, err = v.ReadAt(p, off)
-		}
-	*/
 }
 
 func die(why string, args ...interface{}) {

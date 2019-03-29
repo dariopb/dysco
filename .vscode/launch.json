@@ -12,7 +12,7 @@
             "program": "${fileDirname}",
             "env": {},
             "args": [
-                "-c",
+                "-g",
                 "file1.img",
                 "files", 
                 "dariostacc", 
